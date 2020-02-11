@@ -18,6 +18,7 @@ setuptools.setup(
     ],
     install_requires=["cartopy",  # numpy is a dependency of cartopy
                       "matplotlib",
+                      "netCDF4",
                       "xarray"],  # actually we could manage with just NetCDF4
     python_requires='>=3',
 )
