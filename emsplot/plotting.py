@@ -87,7 +87,7 @@ def _title_creation(data, indexes):
 # TODO: allow for .sel(**indexes)
 # TODO: possibility to force projection
 def plot_map(data, varname, indexes, ax=None, latlon=None,
-         add_cbar=True, add_title=True, **kwargs):
+         add_coastline=True, add_cbar=True, add_title=True, **kwargs):
     """Plot the map of the selected variable.
 
     Parameters
@@ -105,6 +105,8 @@ def plot_map(data, varname, indexes, ax=None, latlon=None,
     latlon : tuple or None
         Name given to the latitude and longitude variables
         None to autodetect
+    add_coastline : bool
+        Whether to add coastal outlines
     add_cbar : bool
         Whether to add a colorbar
     add_title : bool
@@ -150,6 +152,8 @@ def plot_map(data, varname, indexes, ax=None, latlon=None,
     if add_title:
         ax.set_title(_title_creation(data, indexes))
 
+    if add_coastline:
+        ax.coastlines(resolution="50m")  # enough for gbr4
     return ax
 
 
