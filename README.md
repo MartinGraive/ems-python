@@ -15,7 +15,7 @@ This package is based on the following dependencies :
 ## Installation
 
 To install this package, install the required dependencies with any method you see fit then execute 
-```
+```bash
 git clone https://github.com/MartinGraive/ems-python.git
 cd ems-python/
 pip install .
@@ -27,7 +27,7 @@ pip install .
 Use the function `plot_map` to display a heatmap of the region with relevant data as described in the arguments.
 
 Example:
-```
+```python
 import xarray as xr
 import matplotlib.pyplot as plt
 from emsplot import plot_map
