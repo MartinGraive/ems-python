@@ -51,38 +51,6 @@ def _title_creation(data, indexes):
     return title.rstrip(', ')
 
 
-# def _plot_from_var(var, ax, proj, add_cbar, ji, **kwargs):
-#     title = ""
-#     latlon = []
-#     if len(var.coords.variables) != 0:
-#         for k, i in var.coords.items():
-#             if i.size == 1:
-#                 title += "{} = {}{}, ".format(k,
-#                                             i.data if k != 'time' else np.datetime_as_string(i.data, 'auto'),
-#                                             i.units if hasattr(i, 'units') else '')
-#             else:
-#                 latlon.append(k)
-#     else:  # if the coordinates are not stored in "coordinates"
-#         latlon = [k for k in var.dims]
-#     if len(latlon) != 2:
-#         raise IndexError('Wrong coordinates')
-#     if ji:
-#         latlon.reverse()
-#     try:
-#         im = ax.pcolor(var[latlon[0]], var[latlon[1]], var.data, transform=proj,
-#                        **kwargs)
-#     except TypeError:
-#         im = ax.pcolor(var[latlon[1]], var[latlon[0]], var.data, transform=proj,
-#                        **kwargs)
-#
-#     ax.set_title(title.rstrip(', '))
-#
-#     if add_cbar:
-#         cbar = plt.colorbar(im, ax=ax)
-#         cbar.set_label("{} ({})".format(var.long_name, var.attrs.get('units')))
-#     return ax
-
-
 # TODO: add a fill_value option for ill-defined arrays
 # TODO: allow for .sel(**indexes)
 # TODO: possibility to force projection
@@ -161,10 +129,21 @@ if __name__ == '__main__':
     """Tests
     """
     import xarray as xr
+
     # ds = xr.open_dataset('/home/martin/Bureau/AIMS/recom_test/outputs/out_std.nc')
+    # plot_map(ds, 'temp', {'record': 6, 'k_centre': 21})
+
     ds = xr.open_dataset('http://dapds00.nci.org.au/thredds/dodsC/fx3/gbr4_v2/gbr4_simple_2019-01.nc')
 
-    # plot_map(ds, 'temp', {'record': 6, 'k_centre': 21})
-    plot_map(ds, 'temp', {'time': 0, 'k': 45}, cmap='inferno')
+    proj = ccrs.PlateCarree()
+    fig, (ax1, ax2) = plt.subplots(1, 2, subplot_kw=dict(projection=proj))
+
+    plot_map(ds, 'temp', {'time': 0, 'k': 45}, ax=ax1, cmap='inferno')
+    ax2 = plot_map(ds, 'salt', {'time': 0, 'k': -3,
+                                'j': slice(10, 100), 'i': slice(100)},
+                   ax=ax2, vmin=32, add_coastline=False)
+    ax2.coastlines(resolution='10m')
+
+    fig.suptitle('Plotting on different scales')
 
     plt.show()
