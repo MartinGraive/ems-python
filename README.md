@@ -18,7 +18,7 @@ To install this package, install the required dependencies with any method you s
 ```
 git clone https://github.com/MartinGraive/ems-python.git
 cd ems-python/
-python setup.py install
+pip install .
 ```
 
 
