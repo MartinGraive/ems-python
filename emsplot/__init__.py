@@ -1,1 +1,1 @@
-from ncdfplot.plotting import plot_map
+from emsplot.plotting import plot_map
