@@ -131,6 +131,31 @@ def plot_map(data, varname, indexes, ax=None, latlon=None,
 # TODO: diagonals
 # TODO: interp and from true data (e.g. degrees rather than index)
 def plot_ts(data, varname, indexes, ax=None, latlon=None):
+    """Plot the time series of the selected variable at different locations.
+
+    Parameters
+    ----------
+    data : xarray.DataSet
+        Dataset containing all variables
+    varname : str
+        Name of the variable to plot
+    indexes : dict
+        Dictionary of coordinates to set
+        Same sizes or use a int to take all range
+    ax : matplotlib.axes._subplots.AxesSubplot
+        Object to draw on
+        None to create it
+    latlon : tuple or None
+        Name given to the latitude and longitude variables
+        None to autodetect
+    kwargs
+        matplotlib.axes.Axes.plot kwargs
+
+    Returns
+    -------
+    matplotlib.axes._subplots.AxesSubplot
+        Object drawn on
+    """
     if isinstance(latlon, (tuple, list)):
         lat, lon = latlon
     else:
@@ -155,7 +180,7 @@ def plot_ts(data, varname, indexes, ax=None, latlon=None):
     for k, i in (data.coords.items() if len(data.coords) > 0 else data.items()):
         if len(i.dims) == 1 and i.dims[0] == time_dim:  # fixme: hack
             plt.xticks(np.arange(len(i.data)), np.datetime_as_string(i, 'auto'),
-                       rotation=90)
+                       rotation=45)
 
     unitlat = lat.units if hasattr(lat, 'units') else ''
     unitlon = lon.units if hasattr(lon, 'units') else ''
@@ -166,8 +191,8 @@ def plot_ts(data, varname, indexes, ax=None, latlon=None):
     for x, y in zip(*value_list):
         position = dict((k, z) for k, z in zip(posindexes.keys(), [x, y]))
         label = "{:.2f}{} {:.2f}{}".format(lat.isel(position).data, unitlat,
-                                   lon.isel(position).data, unitlon)
-        ax.plot(var.isel(position).data, label=label)
+                                   lon.isel(position).data, unitlon)  #fixme: depth if different
+        ax.plot(var.isel(position).data, label=label, **kwargs)
 
     plt.legend()
     plt.tight_layout()
