@@ -52,8 +52,10 @@ def _title_creation(data, indexes):
 
 
 # TODO: add a fill_value option for ill-defined arrays
-# TODO: allow for .sel(**indexes)
+# TODO: allow for .sel(indexes)
+# TODO: interp and from true data (e.g. metres rather than index)
 # TODO: possibility to force projection
+# TODO: automatically choose the best resolution for coastlines
 def plot_map(data, varname, indexes, ax=None, latlon=None,
          add_coastline=True, add_cbar=True, add_title=True, **kwargs):
     """Plot the map of the selected variable.
@@ -104,13 +106,13 @@ def plot_map(data, varname, indexes, ax=None, latlon=None,
         ax = plt.axes(projection=proj)
 
     try:
-        var = data[varname].isel(**indexes)
+        var = data[varname].isel(indexes)
     except ValueError as e:
         e.args += ("valid dimensions are {}".format(data[varname].dims),)
         raise
 
     posindexes = dict((k, indexes[k]) for k in lat.dims if k in indexes)
-    im = ax.pcolor(lon.isel(**posindexes), lat.isel(**posindexes), var.data,
+    im = ax.pcolor(lon.isel(posindexes), lat.isel(posindexes), var.data,
                    transform=proj, **kwargs)
 
     if add_cbar:
@@ -125,13 +127,58 @@ def plot_map(data, varname, indexes, ax=None, latlon=None,
     return ax
 
 
+# TODO: time labels factorization
+# TODO: diagonals
+# TODO: interp and from true data (e.g. degrees rather than index)
+def plot_ts(data, varname, indexes, ax=None, latlon=None):
+    if isinstance(latlon, (tuple, list)):
+        lat, lon = latlon
+    else:
+        lat, lon = _latlon_autodetect(data, varname)
+    lat, lon = data[lat], data[lon]
+    posindexes = dict((k, indexes[k]) for k in lat.dims if k in indexes)
+
+    if ax is None:
+        ax = plt.axes()
+
+    try:
+        data[varname].isel(indexes)  # to raise the exception if necessary
+        var = data[varname].isel(dict((k, indexes[k])
+                                      for k in indexes if k not in posindexes))
+    except ValueError as e:
+        e.args += ("valid dimensions are {}".format(data[varname].dims),)
+        raise
+
+    plt.ylabel("{} ({})".format(var.long_name, var.attrs.get('units')))
+
+    time_dim = [dim for dim in var.dims if dim not in lat.dims][0]
+    for k, i in (data.coords.items() if len(data.coords) > 0 else data.items()):
+        if len(i.dims) == 1 and i.dims[0] == time_dim:  # fixme: hack
+            plt.xticks(np.arange(len(i.data)), np.datetime_as_string(i, 'auto'),
+                       rotation=90)
+
+    unitlat = lat.units if hasattr(lat, 'units') else ''
+    unitlon = lon.units if hasattr(lon, 'units') else ''
+    value_list = [[v] if isinstance(v, int) else v for v in posindexes.values()]
+    l0, l1 = len(value_list[0]), len(value_list[1])
+    if l0 != l1:
+        value_list = [v * l for v, l in zip(value_list, (l1, l0))]
+    for x, y in zip(*value_list):
+        position = dict((k, z) for k, z in zip(posindexes.keys(), [x, y]))
+        label = "{:.2f}{} {:.2f}{}".format(lat.isel(position).data, unitlat,
+                                   lon.isel(position).data, unitlon)
+        ax.plot(var.isel(position).data, label=label)
+
+    plt.legend()
+    plt.tight_layout()
+
+    return ax
+
+
 if __name__ == '__main__':
     """Tests
     """
     import xarray as xr
-
-    # ds = xr.open_dataset('/home/martin/Bureau/AIMS/recom_test/outputs/out_std.nc')
-    # plot_map(ds, 'temp', {'record': 6, 'k_centre': 21})
 
     ds = xr.open_dataset('http://dapds00.nci.org.au/thredds/dodsC/fx3/gbr4_v2/gbr4_simple_2019-01.nc')
 
