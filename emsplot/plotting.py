@@ -130,7 +130,8 @@ def plot_map(data, varname, indexes, ax=None, latlon=None,
 # TODO: time labels factorization
 # TODO: diagonals
 # TODO: interp and from true data (e.g. degrees rather than index)
-def plot_ts(data, varname, indexes, ax=None, latlon=None):
+# TODO: slice support
+def plot_ts(data, varname, indexes, ax=None, latlon=None, **kwargs):
     """Plot the time series of the selected variable at different locations.
 
     Parameters
