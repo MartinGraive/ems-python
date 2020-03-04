@@ -180,8 +180,9 @@ def plot_ts(data, varname, indexes, ax=None, latlon=None, **kwargs):
     time_dim = [dim for dim in var.dims if dim not in lat.dims][0]
     for k, i in (data.coords.items() if len(data.coords) > 0 else data.items()):
         if len(i.dims) == 1 and i.dims[0] == time_dim:  # fixme: hack
-            plt.xticks(np.arange(len(i.data)), np.datetime_as_string(i, 'auto'),
-                       rotation=45)
+            j = i[indexes[time_dim]]
+            plt.xticks(np.arange(len(j.data)), np.datetime_as_string(j, 'auto'),
+                       rotation=90)
 
     unitlat = lat.units if hasattr(lat, 'units') else ''
     unitlon = lon.units if hasattr(lon, 'units') else ''
