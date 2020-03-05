@@ -127,10 +127,18 @@ def plot_map(data, varname, indexes, ax=None, latlon=None,
     return ax
 
 
+def _adapt_type(value, length):
+    if isinstance(value, int):
+        return [value]
+    elif isinstance(value, slice):
+        return np.arange(length)[value]
+    else:
+        return value
+
+
 # TODO: time labels factorization
 # TODO: diagonals
 # TODO: interp and from true data (e.g. degrees rather than index)
-# TODO: slice support
 def plot_ts(data, varname, indexes, ax=None, latlon=None, **kwargs):
     """Plot the time series of the selected variable at different locations.
 
@@ -186,7 +194,7 @@ def plot_ts(data, varname, indexes, ax=None, latlon=None, **kwargs):
 
     unitlat = lat.units if hasattr(lat, 'units') else ''
     unitlon = lon.units if hasattr(lon, 'units') else ''
-    value_list = [[v] if isinstance(v, int) else v for v in posindexes.values()]
+    value_list = [_adapt_type(v, var.sizes[k]) for k, v in posindexes.items()]
     if (l0 := len(value_list[0])) != (l1 := len(value_list[1])):
         value_list = [v * l for v, l in zip(value_list, (l1, l0))]
     for x, y in zip(*value_list):
