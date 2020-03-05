@@ -168,7 +168,7 @@ def plot_ts(data, varname, indexes, ax=None, latlon=None, **kwargs):
         ax = plt.axes()
 
     try:
-        data[varname].isel(indexes)  # to raise the exception if necessary
+        # data[varname].isel(indexes)  # to raise the exception if necessary
         var = data[varname].isel(dict((k, indexes[k])
                                       for k in indexes if k not in posindexes))
     except ValueError as e:
@@ -187,8 +187,7 @@ def plot_ts(data, varname, indexes, ax=None, latlon=None, **kwargs):
     unitlat = lat.units if hasattr(lat, 'units') else ''
     unitlon = lon.units if hasattr(lon, 'units') else ''
     value_list = [[v] if isinstance(v, int) else v for v in posindexes.values()]
-    l0, l1 = len(value_list[0]), len(value_list[1])
-    if l0 != l1:
+    if (l0 := len(value_list[0])) != (l1 := len(value_list[1])):
         value_list = [v * l for v, l in zip(value_list, (l1, l0))]
     for x, y in zip(*value_list):
         position = dict((k, z) for k, z in zip(posindexes.keys(), [x, y]))
