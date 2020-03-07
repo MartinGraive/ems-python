@@ -98,7 +98,8 @@ def plot_map(data, varname, indexes, ax=None, latlon=None,
 
         var = data[varname].isel(indexes)
     except KeyError as e:
-        e.args += (f"valid variable names are {tuple(data.data_vars) + tuple(data.coords)}",)
+        e.args += (f"valid variable names are "
+                    "{tuple(data.data_vars) + tuple(data.coords)}",)
         raise
     except ValueError as e:
         e.args += (f"valid dimensions are {data[varname].dims}",)
@@ -180,7 +181,8 @@ def plot_ts(data, varname, indexes, ax=None, latlon=None, **kwargs):
         var = data[varname].isel(dict((k, indexes[k])
                                       for k in indexes if k not in posindexes))
     except KeyError as e:
-        e.args += (f"valid variable names are {tuple(data.data_vars) + tuple(data.coords)}",)
+        e.args += (f"valid variable names are "
+                    "{tuple(data.data_vars) + tuple(data.coords)}",)
         raise
     except ValueError as e:
         e.args += (f"valid dimensions are {data[varname].dims}",)
