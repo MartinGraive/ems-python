@@ -127,6 +127,7 @@ def plot_map(data, varname, indexes, ax=None, latlon=None,
 
     if add_coastline:
         ax.coastlines(resolution="50m")  # enough for gbr4
+
     return ax
 
 
@@ -182,7 +183,7 @@ def plot_ts(data, varname, indexes, ax=None, latlon=None, **kwargs):
         e.args += (f"valid variable names are {tuple(data.data_vars) + tuple(data.coords)}",)
         raise
     except ValueError as e:
-        e.args += ("valid dimensions are {}".format(data[varname].dims),)
+        e.args += (f"valid dimensions are {data[varname].dims}",)
         raise
 
     if ax is None:
