@@ -61,17 +61,20 @@ def _title_creation(data, indexes):
 
 
 def _dim_coo_split(data, indexes):
-    if hasattr(data, 'coordinates'):
-        coo_list = data.coordinates
-    else:
-        coo_list = list(data.coords)
+    # if hasattr(data, 'coordinates'):
+    #     coo_list = data.coordinates
+    # else:
+    #     coo_list = list(data.coords)
     d_coo, d_dim = dict(), dict()
     for k, i in indexes.items():
-        if k in coo_list:
-            d_coo[k] = i
-        else:
+        if k[0] == '+':
+            d_coo[k[1:]] = i
+        elif k in list(data.dims):
             d_dim[k] = i
-    return d_coo, d_dim
+        else:
+            d_coo[k] = i
+
+    return {**d_coo, **d_dim}
 
 
 # TODO: add a fill_value option for ill-defined arrays
