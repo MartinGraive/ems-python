@@ -60,6 +60,20 @@ def _title_creation(data, indexes):
     return title.rstrip(', ')
 
 
+def _dim_coo_split(data, indexes):
+    if hasattr(data, 'coordinates'):
+        coo_list = data.coordinates
+    else:
+        coo_list = list(data.coords)
+    d_coo, d_dim = dict(), dict()
+    for k, i in indexes.items():
+        if k in coo_list:
+            d_coo[k] = i
+        else:
+            d_dim[k] = i
+    return d_coo, d_dim
+
+
 # TODO: add a fill_value option for ill-defined arrays
 # TODO: allow for .sel(indexes)
 # TODO: interp and from true data (e.g. metres rather than index)
