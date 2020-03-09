@@ -127,7 +127,7 @@ def plot_map(data, varname, indexes, ax=None, latlon=None,
     posindexes = (dict((k, indexes[k]) for k in lon.dims if k in indexes),
                   dict((k, indexes[k]) for k in lat.dims if k in indexes))
     lon, lat = lon.isel(posindexes[0]), lat.isel(posindexes[1])
-    if len(lon.dims) == 1:  # we expect that lon and lat have the same dim
+    if len(lon.dims) == 1:  # we expect that lon and lat have the same n of dims
         lon = np.tile(lon, (lat.shape[0], 1))
         lat = np.tile(lat.T, (lon.shape[1], 1)).T
     im = ax.pcolor(lon, lat, var.data,
