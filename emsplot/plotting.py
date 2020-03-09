@@ -124,8 +124,9 @@ def plot_map(data, varname, indexes, ax=None, latlon=None,
     if ax is None:
         ax = plt.axes(projection=proj)
 
-    posindexes = dict((k, indexes[k]) for k in lat.dims if k in indexes)
-    im = ax.pcolor(lon.isel(posindexes), lat.isel(posindexes), var.data,
+    posindexes = (dict((k, indexes[k]) for k in lon.dims if k in indexes),
+                  dict((k, indexes[k]) for k in lat.dims if k in indexes))
+    im = ax.pcolor(lon.isel(posindexes[0]), lat.isel(posindexes[1]), var.data,
                    transform=proj, **kwargs)
 
     if add_cbar:
