@@ -6,13 +6,22 @@ import warnings
 
 
 def _latlon_autodetect(data, varname):
+    def condition(i, string):
+        c1 = i.attrs.get('coordinate_type') == string
+        if c1:
+            return c1
+        ln = i.attrs.get('long_name')
+        if ln is None:
+            return c1
+        return string in ln.lower()
+
     var_dims = data[varname].dims
     lat, lon = [], []
     for k, i in data.variables.items():
-        if i.attrs.get('coordinate_type') == 'latitude':
+        if condition(i, 'latitude'):
             if set(i.dims).issubset(var_dims):
                 lat.append(k)
-        if i.attrs.get('coordinate_type') == 'longitude':
+        if condition(i, 'longitude'):
             if set(i.dims).issubset(var_dims):
                 lon.append(k)
     if len(lat) == 0 or len(lon) == 0:
