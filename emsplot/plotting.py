@@ -60,6 +60,29 @@ def _title_creation(data, indexes):
     return title.rstrip(', ')
 
 
+def _dim_coo_split(data, indexes):
+    # if hasattr(data, 'coordinates'):
+    #     coo_list = data.coordinates
+    # else:
+    #     coo_list = list(data.coords)
+    dcoo, ddim = dict(), dict()
+    for k, i in indexes.items():
+        if k[0] == '+':
+            dcoo[k[1:]] = i
+        elif k in list(data.dims):
+            ddim[k] = i
+        else:
+            dcoo[k] = i
+
+    dcoo2 = dict()
+    for k, i in dcoo.items():
+        dk = data[k]
+        # fixme: if more than one dim
+        dcoo2[dk.dims[0]] = np.minimum(np.searchsorted(dk, i), len(dk) - 1)
+
+    return {**dcoo2, **ddim}
+
+
 # TODO: add a fill_value option for ill-defined arrays
 # TODO: allow for .sel(indexes)
 # TODO: interp and from true data (e.g. metres rather than index)
@@ -105,6 +128,7 @@ def plot_map(data, varname, indexes, ax=None, latlon=None,
             lat, lon = _latlon_autodetect(data, varname)
         lat, lon = data[lat], data[lon]
 
+        indexes = _dim_coo_split(data, indexes)
         var = data[varname].isel(indexes)
     except KeyError as e:
         e.args += ("valid variable names are "
@@ -192,6 +216,7 @@ def plot_ts(data, varname, indexes, ax=None, latlon=None, **kwargs):
         lat, lon = data[lat], data[lon]
         posindexes = dict((k, indexes[k]) for k in lat.dims if k in indexes)
 
+        indexes = _dim_coo_split(data, indexes)
         var = data[varname].isel(dict((k, indexes[k])
                                       for k in indexes if k not in posindexes))
     except KeyError as e:
@@ -241,7 +266,7 @@ if __name__ == '__main__':
     proj = ccrs.PlateCarree()
     fig, (ax1, ax2) = plt.subplots(1, 2, subplot_kw=dict(projection=proj))
 
-    plot_map(ds, 'temp', {'time': 0, 'k': 45}, ax=ax1, cmap='inferno')
+    plot_map(ds, 'temp', {'time': 0, 'zc': -0.5}, ax=ax1, cmap='inferno')
     ax2 = plot_map(ds, 'salt', {'time': 0, 'k': -3,
                                 'j': slice(10, 100), 'i': slice(100)},
                    ax=ax2, vmin=32, add_coastline=False)
