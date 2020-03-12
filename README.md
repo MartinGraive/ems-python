@@ -42,3 +42,11 @@ plot_map(ds, 'temp', {'time': 0, 'k': 45}, cmap='inferno')
 
 plt.show()
 ```
+
+A time series visualization function is also available. 
+```python
+from emsplot import plot_ts
+
+plot_ts(ds, 'salt', {'time': slice(10), 'k': -1, 'i': 60, 'j': [0, 10, 20]})
+plt.show()
+```
