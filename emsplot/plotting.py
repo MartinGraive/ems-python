@@ -132,10 +132,10 @@ def plot_map(data, varname, indexes, ax=None, latlon=None,
         var = data[varname].isel(indexes)
     except KeyError as e:
         e.args += ("valid variable names are "
-                   f"{tuple(data.data_vars) + tuple(data.coords)}",)
+                   "{}".format(tuple(data.data_vars) + tuple(data.coords)),)
         raise
     except ValueError as e:
-        e.args += (f"valid dimensions are {data[varname].dims}",)
+        e.args += ("valid dimensions are {}".format(data[varname].dims),)
         raise
 
     proj_type = lat.attrs.get('projection')  # geographic_crs_name ?
@@ -221,10 +221,10 @@ def plot_ts(data, varname, indexes, ax=None, latlon=None, **kwargs):
                                       for k in indexes if k not in posindexes))
     except KeyError as e:
         e.args += ("valid variable names are "
-                   f"{tuple(data.data_vars) + tuple(data.coords)}",)
+                   "{}".format(tuple(data.data_vars) + tuple(data.coords)),)
         raise
     except ValueError as e:
-        e.args += (f"valid dimensions are {data[varname].dims}",)
+        e.args += ("valid dimensions are {}".format(data[varname].dims),)
         raise
 
     if ax is None:
@@ -242,7 +242,8 @@ def plot_ts(data, varname, indexes, ax=None, latlon=None, **kwargs):
     unitlat = lat.units if hasattr(lat, 'units') else ''
     unitlon = lon.units if hasattr(lon, 'units') else ''
     value_list = [_adapt_type(v, var.sizes[k]) for k, v in posindexes.items()]
-    if (l0 := len(value_list[0])) != (l1 := len(value_list[1])):
+    l0, l1 = len(value_list[0]), len(value_list[1])
+    if l0 != l1:
         value_list = [v * l for v, l in zip(value_list, (l1, l0))]
     for x, y in zip(*value_list):
         position = dict((k, z) for k, z in zip(posindexes.keys(), [x, y]))
