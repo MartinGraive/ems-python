@@ -20,5 +20,5 @@ setuptools.setup(
                       "matplotlib",
                       "netCDF4",
                       "xarray"],  # actually we could manage with just NetCDF4
-    python_requires='>=3.8',
+    python_requires='>=3',
 )
