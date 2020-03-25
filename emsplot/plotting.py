@@ -1,6 +1,7 @@
 import cartopy.crs as ccrs
-import matplotlib.pyplot as plt
 import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
 
 import warnings
 
@@ -89,7 +90,7 @@ def _dim_coo_split(data, indexes):
 # TODO: possibility to force projection
 # TODO: automatically choose the best resolution for coastlines
 def plot_map(data, varname, indexes, ax=None, latlon=None,
-         add_coastline=True, add_cbar=True, add_title=True, **kwargs):
+             add_coastline=True, add_cbar=True, add_title=True, **kwargs):
     """Plot the map of the selected variable.
 
     Parameters
@@ -168,6 +169,52 @@ def plot_map(data, varname, indexes, ax=None, latlon=None,
         ax.coastlines(resolution="50m")  # enough for gbr4
 
     return ax
+
+
+def animate_map(data, varname, indexes, anim_dim, anim_range=None, ax=None,
+                latlon=None, add_coastline=True, add_cbar=True, add_title=True, **kwargs):
+    try:
+        if isinstance(latlon, (tuple, list)):
+            lat, lon = latlon
+        else:
+            lat, lon = _latlon_autodetect(data, varname)
+        lat, lon = data[lat], data[lon]
+
+        indexes = _dim_coo_split(data, indexes)
+        var = data[varname].isel(indexes)
+    except KeyError as e:
+        e.args += ("valid variable names are "
+                   "{}".format(tuple(data.data_vars) + tuple(data.coords)),)
+        raise
+    except ValueError as e:
+        e.args += ("valid dimensions are {}".format(data[varname].dims),)
+        raise
+
+    proj_type = lat.attrs.get('projection')  # geographic_crs_name ?
+    if proj_type == 'geographic':
+        proj = ccrs.PlateCarree()
+    else:
+        warnings.warn("Could not check projection type, "
+                      "defaults to rectangular", SyntaxWarning)
+        proj = ccrs.PlateCarree()
+    if ax is None:
+        ax = plt.axes(projection=proj)
+
+    posindexes = (dict((k, indexes[k]) for k in lon.dims if k in indexes),
+                  dict((k, indexes[k]) for k in lat.dims if k in indexes))
+    lon, lat = lon.isel(posindexes[0]), lat.isel(posindexes[1])
+    if len(lon.dims) == 1:  # we expect that lon and lat have the same n of dims
+        lon = np.tile(lon, (lat.shape[0], 1))
+        lat = np.tile(lat.T, (lon.shape[1], 1)).T
+
+
+    ani = FuncAnimation(ax.get_figure(),
+                        lambda i: ax.pcolor(lon, lat,
+                                  var.isel({anim_dim: i}).data,
+                                  transform=proj, **kwargs),
+                        anim_range,
+                        interval=400)
+    return ani
 
 
 def _adapt_type(value, length):
