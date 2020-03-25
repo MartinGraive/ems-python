@@ -2,6 +2,7 @@ import cartopy.crs as ccrs
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
+from matplotlib.colorbar import make_axes, ColorbarBase
 
 import warnings
 
@@ -199,6 +200,8 @@ def animate_map(data, varname, indexes, anim_dim, anim_range=None, interval=300,
         proj = ccrs.PlateCarree()
     if ax is None:
         ax = plt.axes(projection=proj)
+    if add_cbar:
+        cax, _ = make_axes(ax)
 
     posindexes = (dict((k, indexes[k]) for k in lon.dims if k in indexes),
                   dict((k, indexes[k]) for k in lat.dims if k in indexes))
@@ -208,15 +211,20 @@ def animate_map(data, varname, indexes, anim_dim, anim_range=None, interval=300,
         lat = np.tile(lat.T, (lon.shape[1], 1)).T
 
     def update(frame):
-        ax.pcolor(lon, lat, var.isel({anim_dim: frame}).data,
-                  transform=proj, **kwargs)
+        arr = var.isel({anim_dim: frame}).data
+        ax.pcolor(lon, lat, arr, transform=proj, **kwargs)
         if add_title:
             ax.set_title(_title_creation(data, {**indexes, anim_dim: frame}))
+        if add_cbar:
+            cax.clear()
+            cbar = ColorbarBase(cax, boundaries=np.unique(arr[~np.isnan(arr)]).flatten(), **kwargs)
+            cbar.set_label("{} ({})".format(var.long_name, var.attrs.get('units')))
 
     ani = FuncAnimation(ax.get_figure(), update, anim_range, interval=interval)
 
     if add_coastline:
         ax.coastlines(resolution="50m")  # enough for gbr4
+
     return ani
 
 
