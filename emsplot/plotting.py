@@ -174,6 +174,44 @@ def plot_map(data, varname, indexes, ax=None, latlon=None,
 
 def animate_map(data, varname, indexes, anim_dim, anim_range=None, interval=300, ax=None,
                 latlon=None, add_coastline=True, add_cbar=True, add_title=True, **kwargs):
+    """Animate the map of the selected variable.
+
+    Parameters
+    ----------
+    data : xarray.DataSet
+        Dataset containing all variables
+    varname : str
+        Name of the variable to plot
+    indexes : dict
+        Dictionary of coordinates to set
+        To take the whole range of a coordinate into account, do not mention it
+    anim_dim : str
+        Name of the coordinate to update
+    anim_range : iterable, int, generator or None
+        Range of the updated coordinate
+        None to take whole range
+    interval : int
+        Delay between frames in milliseconds
+    ax : cartopy.mpl.geoaxes.GeoAxesSubplot
+        Object to draw on
+        None to create it
+    latlon : tuple or None
+        Name given to the latitude and longitude variables
+        None to autodetect
+    add_coastline : bool
+        Whether to add coastal outlines
+    add_cbar : bool
+        Whether to add a colorbar
+    add_title : bool
+        Whether to add a title
+    kwargs
+        matplotlib.axes.Axes.pcolor kwargs
+
+    Returns
+    -------
+    matplotlib.animation.FuncAnimation
+        Animation object
+    """
     try:
         if isinstance(latlon, (tuple, list)):
             lat, lon = latlon

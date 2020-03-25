@@ -43,6 +43,14 @@ plot_map(ds, 'temp', {'time': 0, 'k': 45}, cmap='inferno')
 plt.show()
 ```
 
+To animate this representation, use the `animate_map` function.
+```python
+from emsplot import animate_map
+
+animate_map(ds, 'u', {'i': slice(80), 'k': -1}, 'time')
+plt.show()
+```
+
 A time series visualization function is also available. 
 ```python
 from emsplot import plot_ts
