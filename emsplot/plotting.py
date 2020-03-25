@@ -44,7 +44,7 @@ def _title_creation(data, indexes):
     title = ""
     relevant_info = []
     for k, i in indexes.items():
-        if isinstance(i, int):  # .isel()
+        if isinstance(i, (int, np.int64)):  # .isel()
             relevant_info.append(k)
 
     # search in .coords if it is defined
@@ -258,6 +258,8 @@ def animate_map(data, varname, indexes, anim_dim, anim_range=None, interval=300,
             cbar = ColorbarBase(cax, boundaries=np.unique(arr[~np.isnan(arr)]).flatten(), **kwargs)
             cbar.set_label("{} ({})".format(var.long_name, var.attrs.get('units')))
 
+    if isinstance(anim_range, slice):
+        anim_range = np.arange(var.sizes[anim_dim])[anim_range]
     ani = FuncAnimation(ax.get_figure(), update, anim_range, interval=interval)
 
     if add_coastline:
