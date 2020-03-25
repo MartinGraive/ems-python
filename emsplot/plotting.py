@@ -171,7 +171,7 @@ def plot_map(data, varname, indexes, ax=None, latlon=None,
     return ax
 
 
-def animate_map(data, varname, indexes, anim_dim, anim_range=None, ax=None,
+def animate_map(data, varname, indexes, anim_dim, anim_range=None, interval=300, ax=None,
                 latlon=None, add_coastline=True, add_cbar=True, add_title=True, **kwargs):
     try:
         if isinstance(latlon, (tuple, list)):
@@ -207,13 +207,16 @@ def animate_map(data, varname, indexes, anim_dim, anim_range=None, ax=None,
         lon = np.tile(lon, (lat.shape[0], 1))
         lat = np.tile(lat.T, (lon.shape[1], 1)).T
 
+    def update(frame):
+        ax.pcolor(lon, lat, var.isel({anim_dim: frame}).data,
+                  transform=proj, **kwargs)
+        if add_title:
+            ax.set_title(_title_creation(data, {**indexes, anim_dim: frame}))
 
-    ani = FuncAnimation(ax.get_figure(),
-                        lambda i: ax.pcolor(lon, lat,
-                                  var.isel({anim_dim: i}).data,
-                                  transform=proj, **kwargs),
-                        anim_range,
-                        interval=400)
+    ani = FuncAnimation(ax.get_figure(), update, anim_range, interval=interval)
+
+    if add_coastline:
+        ax.coastlines(resolution="50m")  # enough for gbr4
     return ani
 
 
