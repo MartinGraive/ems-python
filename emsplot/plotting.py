@@ -7,6 +7,8 @@ from matplotlib.colorbar import make_axes, ColorbarBase
 import warnings
 
 
+# TODO: compatibility with netCDF4.Dataset (attributes have different names)
+
 def _latlon_autodetect(data, varname):
     def condition(i, string):
         c1 = i.attrs.get('coordinate_type') == string
@@ -161,7 +163,11 @@ def plot_map(data, varname, indexes, ax=None, latlon=None,
 
     if add_cbar:
         cbar = plt.colorbar(im, ax=ax)
-        cbar.set_label("{} ({})".format(var.long_name, var.attrs.get('units')))
+        try:
+            name = var.long_name
+        except AttributeError:
+            name = var.name
+        cbar.set_label("{} ({})".format(name, var.attrs.get('units')))
 
     if add_title:
         ax.set_title(_title_creation(data, indexes))
@@ -248,6 +254,11 @@ def animate_map(data, varname, indexes, anim_dim, anim_range=None, interval=300,
         lon = np.tile(lon, (lat.shape[0], 1))
         lat = np.tile(lat.T, (lon.shape[1], 1)).T
 
+    try:
+        name = var.long_name
+    except AttributeError:
+        name = var.name
+
     def update(frame):
         arr = var.isel({anim_dim: frame}).data
         ax.pcolor(lon, lat, arr, transform=proj, **kwargs)
@@ -256,7 +267,7 @@ def animate_map(data, varname, indexes, anim_dim, anim_range=None, interval=300,
         if add_cbar:
             cax.clear()
             cbar = ColorbarBase(cax, boundaries=np.unique(arr[~np.isnan(arr)]).flatten(), **kwargs)
-            cbar.set_label("{} ({})".format(var.long_name, var.attrs.get('units')))
+            cbar.set_label("{} ({})".format(name, var.attrs.get('units')))
 
     if isinstance(anim_range, slice):
         anim_range = np.arange(var.sizes[anim_dim])[anim_range]
