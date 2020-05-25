@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 from matplotlib.colorbar import make_axes, ColorbarBase
+import textwrap
 
 import warnings
 
@@ -42,6 +43,10 @@ def _latlon_autodetect(data, varname):
     return lat, lon
 
 
+def wrap(text):
+    return "\n".join(textwrap.wrap(text))
+
+
 def _title_creation(data, indexes):
     title = ""
     relevant_info = []
@@ -61,7 +66,7 @@ def _title_creation(data, indexes):
             unit = i.units if hasattr(i, 'units') else ''
             title += "{} = {}{}, ".format(k, val, unit)
 
-    return title.rstrip(', ')
+    return wrap(title.rstrip(', '))
 
 
 def _dim_coo_split(data, indexes):
@@ -167,7 +172,7 @@ def plot_map(data, varname, indexes, ax=None, latlon=None,
             name = var.long_name
         except AttributeError:
             name = var.name
-        cbar.set_label("{} ({})".format(name, var.attrs.get('units')))
+        cbar.set_label(wrap("{} ({})".format(name, var.attrs.get('units'))))
 
     if add_title:
         ax.set_title(_title_creation(data, indexes))
@@ -267,7 +272,7 @@ def animate_map(data, varname, indexes, anim_dim, anim_range=None, interval=300,
         if add_cbar:
             cax.clear()
             cbar = ColorbarBase(cax, boundaries=np.unique(arr[~np.isnan(arr)]).flatten(), **kwargs)
-            cbar.set_label("{} ({})".format(name, var.attrs.get('units')))
+            cbar.set_label(wrap("{} ({})".format(name, var.attrs.get('units'))))
 
     if isinstance(anim_range, slice):
         anim_range = np.arange(var.sizes[anim_dim])[anim_range]
@@ -339,7 +344,7 @@ def plot_ts(data, varname, indexes, ax=None, latlon=None, **kwargs):
     if ax is None:
         ax = plt.axes()
 
-    plt.ylabel("{} ({})".format(var.long_name, var.attrs.get('units')))
+    plt.ylabel(wrap("{} ({})".format(var.long_name, var.attrs.get('units'))))
 
     time_dim = [dim for dim in var.dims if dim not in lat.dims][0]
     for k, i in (data.coords.items() if len(data.coords) > 0 else data.items()):
