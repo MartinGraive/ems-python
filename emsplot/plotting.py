@@ -23,10 +23,10 @@ def _latlon_autodetect(data, varname):
     var_dims = data[varname].dims
     lat, lon = [], []
     for k, i in data.variables.items():
-        if condition(i, 'latitude'):
+        if condition(i, 'latitude') or 'lat' in k.lower():
             if set(i.dims).issubset(var_dims):
                 lat.append(k)
-        if condition(i, 'longitude'):
+        if condition(i, 'longitude') or 'lon' in k.lower():
             if set(i.dims).issubset(var_dims):
                 lon.append(k)
     if len(lat) == 0 or len(lon) == 0:
@@ -97,6 +97,7 @@ def _dim_coo_split(data, indexes):
 # TODO: interp and from true data (e.g. metres rather than index)
 # TODO: possibility to force projection
 # TODO: automatically choose the best resolution for coastlines
+# TODO: update cbar on zoom
 def plot_map(data, varname, indexes, ax=None, latlon=None,
              add_coastline=True, add_cbar=True, add_title=True, **kwargs):
     """Plot the map of the selected variable.

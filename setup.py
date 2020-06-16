@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="emsplot-martin",  # local package
-    version="1.1.1",
+    version="1.1.2",
     author="Martin",
     description="A small visualization package for NetCDF files from the EMS",
     long_description=long_description,
