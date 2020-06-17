@@ -351,8 +351,11 @@ def plot_ts(data, varname, indexes, ax=None, latlon=None, **kwargs):
     for k, i in (data.coords.items() if len(data.coords) > 0 else data.items()):
         if len(i.dims) == 1 and i.dims[0] == time_dim:  # fixme: hack
             j = i[indexes[time_dim]]
-            plt.xticks(np.arange(len(j.data)), np.datetime_as_string(j, 'auto'),
-                       rotation=90)
+            try:
+                labels = np.datetime_as_string(j, 'auto')
+            except TypeError:
+                labels = [t.isoformat() for t in j.data]
+            plt.xticks(np.arange(len(j.data)), labels, rotation=90)
 
     unitlat = lat.units if hasattr(lat, 'units') else ''
     unitlon = lon.units if hasattr(lon, 'units') else ''
