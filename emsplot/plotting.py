@@ -329,7 +329,7 @@ def plot_ts(data, varname, indexes, ax=None, latlon=None, **kwargs):
         else:
             lat, lon = _latlon_autodetect(data, varname)
         lat, lon = data[lat], data[lon]
-        posindexes = dict((k, indexes[k]) for k in lat.dims if k in indexes)
+        posindexes = dict((k, indexes[k]) for k in set(lat.dims).union(lon.dims) if k in indexes)
 
         indexes = _dim_coo_split(data, indexes)
         var = data[varname].isel(dict((k, indexes[k])
